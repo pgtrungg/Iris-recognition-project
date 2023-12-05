@@ -69,13 +69,8 @@ def iris_segmentation(img):
 
     # Áp dụng mask lên ảnh mắt
     segmented_iris = cv2.bitwise_and(img1, mask)
-    return segmented_iris
+    return segmented_iris,inner_center,inner_radius,outer_center,outer_radius
 
-#MAIN
-input_path="dataset\\40\\right\\tonghlr1.bmp"
-img=cv2.imread(input_path)
-cv2.imshow("After",iris_segmentation(img))
-cv2.waitKey(0)
-cv2.destroyAllWindows() 
+
 
 
