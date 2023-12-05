@@ -4,7 +4,8 @@ import IrisSegmentation
 import cv2
 import numpy as np
 
-def iris_normalization(image, inner_center, inner_radius, outer_center, outer_radius):
+def iris_normalization(image):
+    segmented_iris,inner_center,inner_radius,outer_center,outer_radius=IrisSegmentation.iris_segmentation(image)
     # Convert the image to grayscale if it's not already
     if len(image.shape) == 3:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -27,15 +28,6 @@ def iris_normalization(image, inner_center, inner_radius, outer_center, outer_ra
             Yc = int((1 - r) * Yin + r * Yo)
 
             normalized_image[j, i] = image[Yc, Xc]
-
+    cv2.imwrite('imageshow/NormalizedImage.bmp',normalized_image)
     return normalized_image
 
-#MAIN
-input_path="dataset\\1\\left\\aeval1.bmp"
-img=cv2.imread(input_path)
-segmented_iris,inner_center,inner_radius,outer_center,outer_radius=IrisSegmentation.iris_segmentation(img)
-shape=img.shape
-img1=iris_normalization(img,inner_center,inner_radius,outer_center,outer_radius)
-cv2.imshow('image',img1)
-cv2.waitKey(0)
-cv2.destroyAllWindows() 

@@ -62,13 +62,15 @@ def iris_segmentation(img):
     img,inner_center,inner_radius=iris_inner_bound_detection(img)
     img,outer_center,outer_radius=iris_outer_bound_detection(img,inner_center,inner_radius)
 
-     # Tạo mask cho iris
+    # Make the mask
     mask = np.zeros_like(img)*255
     cv2.circle(mask, outer_center, outer_radius, (255, 255, 255), thickness=-1)
     cv2.circle(mask, inner_center, inner_radius, (0, 0, 0), thickness=-1)
 
-    # Áp dụng mask lên ảnh mắt
+    # Apply the mask
     segmented_iris = cv2.bitwise_and(img1, mask)
+
+    cv2.imwrite('imageshow/SegmentedImage.bmp',segmented_iris)
     return segmented_iris,inner_center,inner_radius,outer_center,outer_radius
 
 
