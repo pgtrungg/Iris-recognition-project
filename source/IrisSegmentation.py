@@ -55,19 +55,26 @@ def iris_outer_bound_detection(img,inner_center,inner_radius):
                 center = (i[0], i[1])
                 radius = i[2]
         cv2.circle(original_image, center, radius, (0, 0, 255),2)           
-    return original_image
+    return original_image,center,radius
 
+def iris_segmentation(img):
+    img1=img.copy()
+    img,inner_center,inner_radius=iris_inner_bound_detection(img)
+    img,outer_center,outer_radius=iris_outer_bound_detection(img,inner_center,inner_radius)
 
+     # Tạo mask cho iris
+    mask = np.zeros_like(img)*255
+    cv2.circle(mask, outer_center, outer_radius, (255, 255, 255), thickness=-1)
+    cv2.circle(mask, inner_center, inner_radius, (0, 0, 0), thickness=-1)
+
+    # Áp dụng mask lên ảnh mắt
+    segmented_iris = cv2.bitwise_and(img1, mask)
+    return segmented_iris
 
 #MAIN
-input_path="dataset\\38\\left\\tickl1.bmp"
+input_path="dataset\\40\\right\\tonghlr1.bmp"
 img=cv2.imread(input_path)
-print(img.shape)
-output_path="imageshow\\aeval1_out.bmp"
-cv2.imshow("Before",img)
-img,center,radius=iris_inner_bound_detection(img)
-#cv2.imshow("after1",img)
-cv2.imshow("After",iris_outer_bound_detection(img,list(center),radius))
+cv2.imshow("After",iris_segmentation(img))
 cv2.waitKey(0)
 cv2.destroyAllWindows() 
 
