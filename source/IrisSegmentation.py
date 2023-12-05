@@ -16,7 +16,6 @@ def iris_inner_bound_detection(img):
     circles=cv2.HoughCircles(img,method=cv2.HOUGH_GRADIENT,dp=1,minDist=50, param1=100, param2=30, minRadius=10, maxRadius=40)
     if circles is not None:
         circles = np.uint16(np.around(circles))
-        print(circles)
         min_d=sys.maxsize
         for i in circles[0,:]:
             height,width=img.shape
@@ -25,8 +24,7 @@ def iris_inner_bound_detection(img):
                 min_d=d
                 center = (i[0], i[1])
                 radius = i[2]
-        cv2.circle(original_image, center, radius, (255, 0, 0),2)  
-        print((center,radius))           
+        cv2.circle(original_image, center, radius, (255, 0, 0),2)          
     return original_image,center,radius
 def iris_outer_bound_detection(img,inner_center,inner_radius):
     original_image=img.copy()
@@ -45,7 +43,6 @@ def iris_outer_bound_detection(img,inner_center,inner_radius):
     circles=cv2.HoughCircles(img,method=cv2.HOUGH_GRADIENT,dp=0.5,minDist=50, param1=50, param2=30, minRadius=round(inner_radius*1.5), maxRadius=round(inner_radius*2.5))
     if circles is not None:
         circles = np.uint16(np.around(circles))
-        print(circles)
         # Find the circle that is nearest to the inner_centers
         min_d=sys.maxsize
         for i in circles[0,:]:

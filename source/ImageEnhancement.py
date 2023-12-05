@@ -7,10 +7,3 @@ def image_enhancement(img):
     return equalized_image
     
     
-#MAIN
-input_path="dataset\\1\\left\\aeval1.bmp"
-img=cv2.imread(input_path)
-img1=image_enhancement(img)
-cv2.imshow('image',img1)
-cv2.waitKey(0)
-cv2.destroyAllWindows() 
