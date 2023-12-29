@@ -1,45 +1,66 @@
 import cv2
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from ImageEnhancement import image_enhancement
+def gaborconvolve_f(img, minw_length, sigma_f):
+    """
+    Convolve each row of an imgage with 1D log-Gabor filters.
+    """
+    rows, ndata = img.shape
+    logGabor_f = np.zeros(ndata)
+    filterb = np.zeros([rows, ndata], dtype=complex)
 
-def apply_gabor_filters(image):
-    image=image_enhancement(image)
-    # Define Gabor filter parameters
-    ksize = 21  # Filter size
-    sigma = 5.0  # Standard deviation of the Gaussian
-    theta = 0.0  # Orientation of the filter
-    lambda_val = 10.0  # Wavelength of the sinusoidal function
-    gamma = 0.5  # Spatial aspect ratio
+    radius = np.arange(ndata/2 + 1) / (ndata/2) / 2
+    radius[0] = 1
 
-    # Create Gabor filter
-    gabor_filter = cv2.getGaborKernel((ksize, ksize), sigma, theta, lambda_val, gamma)
+    # filter wavelength
+    wavelength = minw_length
 
-    # Convolve the iris image with the Gabor filter
-    filtered_image = cv2.filter2D(image, cv2.CV_64F, gabor_filter)
+    # radial filter component 
+    fo = 1 / wavelength
+    logGabor_f[0: int(ndata/2) + 1] = np.exp((-(np.log(radius/fo))**2) /
+                                    (2 * np.log(sigma_f)**2))
+    logGabor_f[0] = 0
 
-    # Calculate the phase of the filtered image
-    phase_image = np.angle(filtered_image)
-
-    # Convert phase information to a binary code
-    binary_iris_code = (phase_image > 0).astype(np.uint8)
-    return binary_iris_code
-
+    # convolution for each row
+    for r in range(rows):
+        signal = img[r, 0:ndata]
+        imagefft = np.fft.fft(signal)
+        filterb[r, :] = np.fft.ifft(imagefft * logGabor_f)
+    
+    return filterb
+def encode_iris(normalized_image):
+    row,column=normalized_image.shape
+    encode_matrix=list()
+    convolved_image=gaborconvolve_f(normalized_image,8,0.5)
+    real_part=np.real(convolved_image)
+    imag_part=np.imag(convolved_image)
+    for i in range(row):
+        encode_row=[]
+        for j in range(column):
+            if real_part[i][j]>=0 :
+                if imag_part[i][j]>0:
+                    encode_row.append(1)
+                    encode_row.append(1)
+                else:
+                    encode_row.append(1)
+                    encode_row.append(0)
+            else:
+                if imag_part[i][j]>0:
+                    encode_row.append(0)
+                    encode_row.append(1)
+                else:
+                    encode_row.append(0)
+                    encode_row.append(0)
+        encode_matrix.append(encode_row)
+        cv2.imwrite("imageshow/EncodedImage.bmp",(np.array(encode_matrix) * 255))
+    return encode_matrix
 #MAIN
-input_path="dataset\\46\\left\\zulaikahl1.bmp"
-img=cv2.imread(input_path)
+path="imageshow\\EnhancedImage.bmp"
+img=cv2.imread(path)
+img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+print(encode_iris(img))
 
-# Apply Gabor filters and get features
-gabor_features1 = apply_gabor_filters(img)
-
-input_path="dataset\\46\\left\\zulaikahl2.bmp"
-img=cv2.imread(input_path)
-
-# Apply Gabor filters and get features
-gabor_features2 = apply_gabor_filters(img)
-
-cv2.imshow("1",gabor_features1*255)
-cv2.imshow("2",gabor_features2*255)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
+                
+          
+    
+    
+    
