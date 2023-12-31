@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from ImageEnhancement import image_enhancement
 def gaborconvolve_f(img, minw_length, sigma_f):
     """
     Convolve each row of an imgage with 1D log-Gabor filters.
@@ -27,7 +28,8 @@ def gaborconvolve_f(img, minw_length, sigma_f):
         filterb[r, :] = np.fft.ifft(imagefft * logGabor_f)
     
     return filterb
-def encode_iris(normalized_image):
+def encode_iris(image):
+    normalized_image=image_enhancement(image)
     row,column=normalized_image.shape
     encode_matrix=list()
     convolved_image=gaborconvolve_f(normalized_image,8,0.5)
@@ -51,13 +53,9 @@ def encode_iris(normalized_image):
                     encode_row.append(0)
                     encode_row.append(0)
         encode_matrix.append(encode_row)
-        cv2.imwrite("imageshow/EncodedImage.bmp",(np.array(encode_matrix) * 255))
+        cv2.imwrite("imageshow/EncodedImage.bmp",(np.array(encode_matrix) * 255).astype(np.uint8))
     return encode_matrix
-#MAIN
-path="imageshow\\EnhancedImage.bmp"
-img=cv2.imread(path)
-img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-print(encode_iris(img))
+
 
                 
           

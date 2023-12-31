@@ -1,33 +1,36 @@
 import cv2
 import numpy as np
-import IrisSegmentation
+import segmentation
 import cv2
 import numpy as np
 
 def iris_normalization(image):
-    segmented_iris,inner_center,inner_radius,outer_center,outer_radius=IrisSegmentation.iris_segmentation(image)
+    segmented_iris,inner_center,inner_radius,outer_center,outer_radius=segmentation.iris_segmentation(image)
     # Convert the image to grayscale if it's not already
     if len(image.shape) == 3:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    height, width = image.shape
-    thetas = np.arange(0, 2 * np.pi, 2 * np.pi / width)
 
-    normalized_image = np.zeros_like(image)
+    thetas = np.arange(0, 2 * np.pi, 2 * np.pi / 180)
+    d=outer_radius-inner_radius
+    normalized_image = np.zeros((d,180))
 
     for (i, theta) in enumerate(thetas):
-        for j in range(height):
-            r = j / height
+        for j in range(d):
+            r = j / d
 
-            Xin = inner_center[0] + inner_radius * np.cos(theta)
-            Yin = inner_center[1] + inner_radius * np.sin(theta)
-            Xo = outer_center[0] + outer_radius * np.cos(theta)
-            Yo = outer_center[1] + outer_radius * np.sin(theta)
+            xP = inner_center[0] + inner_radius * np.cos(theta)
+            yP = inner_center[1] + inner_radius * np.sin(theta)
+            xI = inner_center[0] + outer_radius * np.cos(theta)
+            yI = inner_center[1] + outer_radius * np.sin(theta)
 
-            Xc = int((1 - r) * Xin + r * Xo)
-            Yc = int((1 - r) * Yin + r * Yo)
+            Xc = int((1 - r) * xP + r * xI)
+            Yc = int((1 - r) * yP + r * yI)
 
             normalized_image[j, i] = image[Yc, Xc]
     cv2.imwrite('imageshow/NormalizedImage.bmp',normalized_image)
-    return normalized_image
-
+    return cv2.resize(normalized_image,(30,180))
+#MAIN
+path="dataset\\1\\left\\aeval1.bmp"
+img=cv2.imread(path)
+iris_normalization(img)
