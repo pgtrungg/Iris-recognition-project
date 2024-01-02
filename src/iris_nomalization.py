@@ -1,19 +1,17 @@
-import cv2
-import numpy as np
 import segmentation
 import cv2
 import numpy as np
 
-def iris_normalization(image):
-    segmented_iris,inner_center,inner_radius,outer_center,outer_radius=segmentation.iris_segmentation(image)
+
+def iris_normalization(image, image_path):
+    segmented_iris, inner_center, inner_radius, outer_center, outer_radius = segmentation.iris_segmentation(image, image_path)
     # Convert the image to grayscale if it's not already
     if len(image.shape) == 3:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-
     thetas = np.arange(0, 2 * np.pi, 2 * np.pi / 180)
-    d=outer_radius-inner_radius
-    normalized_image = np.zeros((d,180))
+    d = outer_radius - inner_radius
+    normalized_image = np.zeros((d, 180))
 
     for (i, theta) in enumerate(thetas):
         for j in range(d):
@@ -28,9 +26,5 @@ def iris_normalization(image):
             Yc = int((1 - r) * yP + r * yI)
 
             normalized_image[j, i] = image[Yc, Xc]
-    cv2.imwrite('imageshow/NormalizedImage.bmp',normalized_image)
-    return cv2.resize(normalized_image,(30,180))
-#MAIN
-path="dataset\\1\\left\\aeval1.bmp"
-img=cv2.imread(path)
-iris_normalization(img)
+    cv2.imwrite('imageshow/NormalizedImage.bmp', normalized_image)
+    return cv2.resize(normalized_image, (30, 180))
